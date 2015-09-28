@@ -32,15 +32,17 @@ import it.jaschke.alexandria.camera.GraphicOverlay;
  */
 class BarcodeTrackerFactory implements MultiProcessor.Factory<Barcode> {
     private GraphicOverlay mGraphicOverlay;
+    private BarcodeTracker.Callback mCallback;
 
-    BarcodeTrackerFactory(GraphicOverlay graphicOverlay) {
+    BarcodeTrackerFactory(GraphicOverlay graphicOverlay, BarcodeTracker.Callback callback) {
         mGraphicOverlay = graphicOverlay;
+        mCallback = callback;
     }
 
     @Override
     public Tracker<Barcode> create(Barcode barcode) {
         BarcodeGraphic graphic = new BarcodeGraphic(mGraphicOverlay);
-        return new GraphicTracker<>(mGraphicOverlay, graphic);
+        return new BarcodeTracker<>(mGraphicOverlay, graphic, mCallback);
     }
 }
 

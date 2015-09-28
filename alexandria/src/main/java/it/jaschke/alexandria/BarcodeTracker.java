@@ -17,6 +17,8 @@ package it.jaschke.alexandria;
 
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.Tracker;
+import com.google.android.gms.vision.barcode.Barcode;
+
 
 import it.jaschke.alexandria.camera.GraphicOverlay;
 
@@ -26,13 +28,19 @@ import it.jaschke.alexandria.camera.GraphicOverlay;
  * to an overlay, update the graphics as the item changes, and remove the graphics when the item
  * goes away.
  */
-class GraphicTracker<T> extends Tracker<T> {
+class BarcodeTracker<T> extends Tracker<T> {
     private GraphicOverlay mOverlay;
     private TrackedGraphic<T> mGraphic;
+    private Callback mCallback;
 
-    GraphicTracker(GraphicOverlay overlay, TrackedGraphic<T> graphic) {
-        mOverlay = overlay;
-        mGraphic = graphic;
+    public interface Callback {
+        void onFound(String barcodeValue);
+    }
+
+    BarcodeTracker(GraphicOverlay overlay, TrackedGraphic<T> graphic, Callback callback) {
+        mOverlay    = overlay;
+        mGraphic    = graphic;
+        mCallback   = callback;
     }
 
     /**
@@ -48,6 +56,7 @@ class GraphicTracker<T> extends Tracker<T> {
      */
     @Override
     public void onUpdate(Detector.Detections<T> detectionResults, T item) {
+        mCallback.onFound(((Barcode)item).rawValue);
         mOverlay.add(mGraphic);
         mGraphic.updateItem(item);
     }

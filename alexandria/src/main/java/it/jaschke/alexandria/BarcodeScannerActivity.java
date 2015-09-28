@@ -33,6 +33,8 @@ import it.jaschke.alexandria.camera.GraphicOverlay;
 public class BarcodeScannerActivity extends AppCompatActivity {
     private static final String TAG = BarcodeScannerActivity.class.getSimpleName();
 
+    public static final int RC_SCAN_BARCODE = 1;
+    public static final String EXTRA_BARCODE = "barcode";
     private static final int RC_HANDLE_GMS = 9001;
     // permission request codes need to be < 256
     private static final int RC_HANDLE_CAMERA_PERM = 2;
@@ -104,22 +106,20 @@ public class BarcodeScannerActivity extends AppCompatActivity {
         // graphics for each barcode on screen.  The factory is used by the multi-processor to
         // create a separate tracker instance for each barcode.
         BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(context)
-                .setBarcodeFormats(Barcode.EAN_13)
+                .setBarcodeFormats(Barcode.DATA_MATRIX | Barcode.EAN_13)
                 .build();
-        BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay);
+        BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay, new BarcodeTracker.Callback() {
+            @Override
+            public void onFound(String barcodeValue) {
+                Intent intent = new Intent().putExtra(EXTRA_BARCODE, barcodeValue);
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+        });
         barcodeDetector.setProcessor(
                 new MultiProcessor.Builder<>(barcodeFactory).build());
 
-        // A multi-detector groups the two detectors together as one detector.  All images received
-        // by this detector from the camera will be sent to each of the underlying detectors, which
-        // will each do face and barcode detection, respectively.  The detection results from each
-        // are then sent to associated tracker instances which maintain per-item graphics on the
-        // screen.
-        MultiDetector multiDetector = new MultiDetector.Builder()
-                .add(barcodeDetector)
-                .build();
-
-        if (!multiDetector.isOperational()) {
+        if (!barcodeDetector.isOperational()) {
             // Note: The first time that an app using the barcode or face API is installed on a
             // device, GMS will download a native libraries to the device in order to do detection.
             // Usually this completes before the app is run for the first time.  But if that
@@ -145,7 +145,7 @@ public class BarcodeScannerActivity extends AppCompatActivity {
         // Creates and starts the camera.  Note that this uses a higher resolution in comparison
         // to other detection examples to enable the barcode detector to detect small barcodes
         // at long distances.
-        mCameraSource = new CameraSource.Builder(getApplicationContext(), multiDetector)
+        mCameraSource = new CameraSource.Builder(getApplicationContext(), barcodeDetector)
                 .setFacing(CameraSource.CAMERA_FACING_BACK)
                 .setRequestedPreviewSize(1600, 1024)
                 .setRequestedFps(15.0f)
