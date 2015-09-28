@@ -2,7 +2,16 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" tools:context="it.jaschke.alexandria.AddBook">
 
+    <TextView
+        android:id="@+id/error_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="@string/no_internet_connection"
+        android:visibility="gone" />
+
     <RelativeLayout
+        android:id="@+id/main_layout"
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -126,4 +135,5 @@
         </LinearLayout>
 
     </RelativeLayout>
+
 </FrameLayout>

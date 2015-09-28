@@ -106,7 +106,7 @@ public class BarcodeScannerActivity extends AppCompatActivity {
         // graphics for each barcode on screen.  The factory is used by the multi-processor to
         // create a separate tracker instance for each barcode.
         BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(context)
-                .setBarcodeFormats(Barcode.DATA_MATRIX | Barcode.EAN_13)
+                .setBarcodeFormats(Barcode.EAN_13)
                 .build();
         BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay, new BarcodeTracker.Callback() {
             @Override

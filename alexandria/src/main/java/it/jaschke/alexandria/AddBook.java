@@ -10,11 +10,11 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -31,8 +31,17 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     private static final int LOADER_ID  = 1;
     private final String EAN_CONTENT    = "eanContent";
 
-    private View mRootView;
-    private EditText mEanText;
+    private TextView    mErrorMessage;
+    private ViewGroup   mMainLayout;
+    private EditText    mEanText;
+    private Button      mScanButton;
+    private TextView    mBookTitle;
+    private TextView    mBookSubtitle;
+    private TextView    mBookAuthors;
+    private ImageView   mBookCover;
+    private TextView    mBookCategories;
+    private Button      mDeleteButton;
+    private Button      mSaveButton;
 
     public AddBook(){ }
 
@@ -47,69 +56,71 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        mRootView = inflater.inflate(R.layout.fragment_add_book, container, false);
-        mEanText = (EditText) mRootView.findViewById(R.id.ean);
+        View rootView       = inflater.inflate(R.layout.fragment_add_book, container, false);
+        mErrorMessage       = (TextView) rootView.findViewById(R.id.error_message);
+        mMainLayout         = (ViewGroup) rootView.findViewById(R.id.main_layout);
+        mScanButton         = (Button) rootView.findViewById(R.id.scan_button);
+        mEanText            = (EditText) rootView.findViewById(R.id.ean);
+        mBookTitle          = (TextView) rootView.findViewById(R.id.bookTitle);
+        mBookSubtitle       = (TextView) rootView.findViewById(R.id.bookSubTitle);
+        mBookAuthors        = (TextView) rootView.findViewById(R.id.authors);
+        mBookCover          = (ImageView) rootView.findViewById(R.id.bookCover);
+        mBookCategories     = (TextView) rootView.findViewById(R.id.categories);
+        mDeleteButton       = (Button) rootView.findViewById(R.id.delete_button);
+        mSaveButton         = (Button) rootView.findViewById(R.id.save_button);
 
         mEanText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                //no need
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                //no need
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
 
             @Override
             public void afterTextChanged(Editable s) {
                 String ean = s.toString();
+
                 //catch isbn10 numbers
                 if (ean.length() == 10 && !ean.startsWith("978")) {
                     ean = "978" + ean;
                 }
+
                 if (ean.length() < 13) {
                     clearFields();
                     return;
                 }
-                //Once we have an ISBN, start a book intent
-                Intent bookIntent = new Intent(getActivity(), BookService.class);
-                bookIntent.putExtra(BookService.EAN, ean);
-                bookIntent.setAction(BookService.FETCH_BOOK);
-                getActivity().startService(bookIntent);
-                AddBook.this.restartLoader();
+
+                if (Utility.isNetworkAvailable(getActivity())) {
+                    //Once we have an ISBN, start a book intent
+                    Intent bookIntent = new Intent(getActivity(), BookService.class);
+                    bookIntent.putExtra(BookService.EAN, ean);
+                    bookIntent.setAction(BookService.FETCH_BOOK);
+                    getActivity().startService(bookIntent);
+                    AddBook.this.restartLoader();
+                } else {
+                    mErrorMessage.setVisibility(View.VISIBLE);
+                    mMainLayout.setVisibility(View.GONE);
+                }
             }
         });
 
-        mRootView.findViewById(R.id.scan_button).setOnClickListener(new View.OnClickListener() {
+        mScanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // This is the callback method that the system will invoke when your button is
-                // clicked. You might do this by launching another app or by including the
-                //functionality directly in this app.
-                // Hint: Use a Try/Catch block to handle the Intent dispatch gracefully, if you
-                // are using an external app.
-                //when you're done, remove the toast below.
-                Context context = getActivity();
-                //CharSequence text = "This button should let you scan a book for its barcode!";
-                //int duration = Toast.LENGTH_SHORT;
-
-                //Toast toast = Toast.makeText(context, text, duration);
-                //toast.show();
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setClassName(BarcodeScannerActivity.class.getPackage().getName(), BarcodeScannerActivity.class.getName());
                 startActivityForResult(i, BarcodeScannerActivity.RC_SCAN_BARCODE);
             }
         });
 
-        mRootView.findViewById(R.id.save_button).setOnClickListener(new View.OnClickListener() {
+        mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mEanText.setText("");
             }
         });
 
-        mRootView.findViewById(R.id.delete_button).setOnClickListener(new View.OnClickListener() {
+        mDeleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent bookIntent = new Intent(getActivity(), BookService.class);
@@ -120,12 +131,12 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             }
         });
 
-        if(savedInstanceState!=null){
+        if(savedInstanceState != null){
             mEanText.setText(savedInstanceState.getString(EAN_CONTENT));
             mEanText.setHint("");
         }
 
-        return mRootView;
+        return rootView;
     }
 
     private void restartLoader(){
@@ -153,33 +164,34 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
-        if (!data.moveToFirst()) {
-            return;
+        if (data.moveToFirst()) {
+            String bookTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
+            mBookTitle.setText(bookTitle);
+
+            String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
+            mBookSubtitle.setText(bookSubTitle);
+
+            // TODO: FIX THIS! I've seen at least one book crash the app here when the authors returned were null
+            String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
+            if (authors != null) {
+                String[] authorsArr = authors.split(",");
+                mBookAuthors.setLines(authorsArr.length);
+                mBookAuthors.setText(authors.replace(",", "\n"));
+            }
+
+            String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
+            if(Patterns.WEB_URL.matcher(imgUrl).matches()){
+                new DownloadImage(mBookCover).execute(imgUrl);
+                mBookCover.setVisibility(View.VISIBLE);
+                mBookCover.setContentDescription(bookTitle);
+            }
+
+            String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
+            mBookCategories.setText(categories);
+
+            mSaveButton.setVisibility(View.VISIBLE);
+            mDeleteButton.setVisibility(View.VISIBLE);
         }
-
-        String bookTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
-        ((TextView) mRootView.findViewById(R.id.bookTitle)).setText(bookTitle);
-
-        String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
-        ((TextView) mRootView.findViewById(R.id.bookSubTitle)).setText(bookSubTitle);
-
-        String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
-        if (authors != null) {
-            String[] authorsArr = authors.split(",");
-            ((TextView) mRootView.findViewById(R.id.authors)).setLines(authorsArr.length);
-            ((TextView) mRootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
-        }
-        String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
-        if(Patterns.WEB_URL.matcher(imgUrl).matches()){
-            new DownloadImage((ImageView) mRootView.findViewById(R.id.bookCover)).execute(imgUrl);
-            mRootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
-        }
-
-        String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
-        ((TextView) mRootView.findViewById(R.id.categories)).setText(categories);
-
-        mRootView.findViewById(R.id.save_button).setVisibility(View.VISIBLE);
-        mRootView.findViewById(R.id.delete_button).setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -188,13 +200,14 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     }
 
     private void clearFields(){
-        ((TextView) mRootView.findViewById(R.id.bookTitle)).setText("");
-        ((TextView) mRootView.findViewById(R.id.bookSubTitle)).setText("");
-        ((TextView) mRootView.findViewById(R.id.authors)).setText("");
-        ((TextView) mRootView.findViewById(R.id.categories)).setText("");
-        mRootView.findViewById(R.id.bookCover).setVisibility(View.INVISIBLE);
-        mRootView.findViewById(R.id.save_button).setVisibility(View.INVISIBLE);
-        mRootView.findViewById(R.id.delete_button).setVisibility(View.INVISIBLE);
+        mBookTitle.setText("");
+        mBookSubtitle.setText("");
+        mBookAuthors.setText("");
+        mBookCategories.setText("");
+        mBookCover.setVisibility(View.INVISIBLE);
+        mBookCover.setContentDescription("");
+        mSaveButton.setVisibility(View.INVISIBLE);
+        mDeleteButton.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -207,8 +220,6 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Log.d(TAG, "Got result!");
-
         switch (requestCode) {
             case BarcodeScannerActivity.RC_SCAN_BARCODE:
                 if (resultCode == Activity.RESULT_OK) {
@@ -217,6 +228,17 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                     mEanText.setText(barcode);
                 }
                 break;
+        }
+    }
+
+    private void updateErrorMessage() {
+        if (!Utility.isNetworkAvailable(getActivity())) {
+            mMainLayout.setVisibility(View.GONE);
+            mErrorMessage.setText(R.string.no_internet_connection);
+            mErrorMessage.setVisibility(View.VISIBLE);
+        } else {
+            mErrorMessage.setVisibility(View.GONE);
+            mMainLayout.setVisibility(View.VISIBLE);
         }
     }
 }
