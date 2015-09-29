@@ -40,8 +40,8 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     private TextView    mBookAuthors;
     private ImageView   mBookCover;
     private TextView    mBookCategories;
-    private Button      mDeleteButton;
-    private Button      mSaveButton;
+    private View        mDeleteButton;
+    private View        mSaveButton;
 
     public AddBook(){ }
 
@@ -66,8 +66,8 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         mBookAuthors        = (TextView) rootView.findViewById(R.id.authors);
         mBookCover          = (ImageView) rootView.findViewById(R.id.bookCover);
         mBookCategories     = (TextView) rootView.findViewById(R.id.categories);
-        mDeleteButton       = (Button) rootView.findViewById(R.id.delete_button);
-        mSaveButton         = (Button) rootView.findViewById(R.id.save_button);
+        mDeleteButton       = rootView.findViewById(R.id.delete_button);
+        mSaveButton         = rootView.findViewById(R.id.save_button);
 
         mEanText.addTextChangedListener(new TextWatcher() {
             @Override
