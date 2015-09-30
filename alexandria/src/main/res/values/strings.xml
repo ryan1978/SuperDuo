@@ -37,4 +37,8 @@
 
     <string name="title_activity_barcode_scanner">Barcode Scanner</string>
     <string name="no_internet_connection">No network connection is available. Unable to fetch remote book data.</string>
+
+    <string name="open_drawer">Navigation View Closed</string>
+    <string name="close_drawer">Navigation View</string>
+
 </resources>
