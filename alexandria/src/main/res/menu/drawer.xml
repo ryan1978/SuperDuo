@@ -5,15 +5,18 @@
 
         <item android:id="@+id/list_books"
             android:title="@string/books"
-            android:checked="false" />
+            android:checked="false"
+            android:icon="@drawable/ic_list" />
 
         <item android:id="@+id/add_book"
             android:title="@string/scan"
-            android:checked="false" />
+            android:checked="false"
+            android:icon="@drawable/ic_search" />
 
         <item android:id="@+id/about"
             android:title="@string/about"
-            android:checked="false" />
+            android:checked="false"
+            android:icon="@drawable/ic_info" />
 
     </group>
 
