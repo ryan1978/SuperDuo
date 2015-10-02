@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.jaschke.alexandria;
-
-import it.jaschke.alexandria.camera.GraphicOverlay;
+package it.jaschke.alexandria.vision;
 
 /**
  * Common base class for defining graphics for a particular item type.  This along with
- * {@link GraphicTracker} avoids the need to duplicate this code for both the face and barcode
+ * {@link BarcodeTracker} avoids the need to duplicate this code for both the face and barcode
  * instances.
  */
-abstract class TrackedGraphic<T> extends GraphicOverlay.Graphic {
+public abstract class TrackedGraphic<T> extends GraphicOverlay.Graphic {
     private int mId;
 
-    TrackedGraphic(GraphicOverlay overlay) {
+    public TrackedGraphic(GraphicOverlay overlay) {
         super(overlay);
     }
 

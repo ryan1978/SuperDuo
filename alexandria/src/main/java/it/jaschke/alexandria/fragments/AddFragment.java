@@ -1,4 +1,4 @@
-package it.jaschke.alexandria;
+package it.jaschke.alexandria.fragments;
 
 import android.app.Activity;
 import android.content.Context;
@@ -20,13 +20,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import it.jaschke.alexandria.activities.BarcodeScannerActivity;
+import it.jaschke.alexandria.R;
+import it.jaschke.alexandria.helpers.Utility;
 import it.jaschke.alexandria.data.AlexandriaContract;
 import it.jaschke.alexandria.services.BookService;
 import it.jaschke.alexandria.services.DownloadImage;
 
 
-public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-    private static final String TAG = AddBook.class.getSimpleName();
+public class AddFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final String TAG = AddFragment.class.getSimpleName();
 
     private static final int LOADER_ID  = 1;
     private final String EAN_CONTENT    = "eanContent";
@@ -43,7 +46,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     private View        mDeleteButton;
     private View        mSaveButton;
 
-    public AddBook(){ }
+    public AddFragment(){ }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -96,7 +99,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                     bookIntent.putExtra(BookService.EAN, ean);
                     bookIntent.setAction(BookService.FETCH_BOOK);
                     getActivity().startService(bookIntent);
-                    AddBook.this.restartLoader();
+                    AddFragment.this.restartLoader();
                 } else {
                     mErrorMessage.setVisibility(View.VISIBLE);
                     mMainLayout.setVisibility(View.GONE);
@@ -107,8 +110,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         mScanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setClassName(BarcodeScannerActivity.class.getPackage().getName(), BarcodeScannerActivity.class.getName());
+                Intent i = new Intent(getActivity(), BarcodeScannerActivity.class);
                 startActivityForResult(i, BarcodeScannerActivity.RC_SCAN_BARCODE);
             }
         });

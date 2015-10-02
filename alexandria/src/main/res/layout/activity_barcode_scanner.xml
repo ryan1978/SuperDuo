@@ -7,16 +7,16 @@
     android:layout_height="match_parent"
     android:keepScreenOn="true">
 
-    <it.jaschke.alexandria.camera.CameraSourcePreview
+    <it.jaschke.alexandria.vision.CameraSourcePreview
         android:id="@+id/preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <it.jaschke.alexandria.camera.GraphicOverlay
-            android:id="@+id/faceOverlay"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+        <it.jaschke.alexandria.vision.GraphicOverlay
+            android:id="@+id/barcodeOverlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
-    </it.jaschke.alexandria.camera.CameraSourcePreview>
+    </it.jaschke.alexandria.vision.CameraSourcePreview>
 
 </LinearLayout>

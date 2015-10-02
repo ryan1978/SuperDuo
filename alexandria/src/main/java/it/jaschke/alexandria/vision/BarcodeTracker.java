@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.jaschke.alexandria;
+package it.jaschke.alexandria.vision;
 
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.Tracker;
 import com.google.android.gms.vision.barcode.Barcode;
-
-
-import it.jaschke.alexandria.camera.GraphicOverlay;
 
 /**
  * Generic tracker which is used for tracking either a face or a barcode (and can really be used for
@@ -28,7 +25,7 @@ import it.jaschke.alexandria.camera.GraphicOverlay;
  * to an overlay, update the graphics as the item changes, and remove the graphics when the item
  * goes away.
  */
-class BarcodeTracker<T> extends Tracker<T> {
+public class BarcodeTracker<T> extends Tracker<T> {
     private GraphicOverlay mOverlay;
     private TrackedGraphic<T> mGraphic;
     private Callback mCallback;

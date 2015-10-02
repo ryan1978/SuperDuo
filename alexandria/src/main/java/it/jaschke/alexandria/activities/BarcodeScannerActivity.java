@@ -1,4 +1,4 @@
-package it.jaschke.alexandria;
+package it.jaschke.alexandria.activities;
 
 import android.Manifest;
 import android.app.Activity;
@@ -20,15 +20,17 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.vision.CameraSource;
-import com.google.android.gms.vision.MultiDetector;
 import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 
 import java.io.IOException;
 
-import it.jaschke.alexandria.camera.CameraSourcePreview;
-import it.jaschke.alexandria.camera.GraphicOverlay;
+import it.jaschke.alexandria.vision.BarcodeTracker;
+import it.jaschke.alexandria.vision.BarcodeTrackerFactory;
+import it.jaschke.alexandria.R;
+import it.jaschke.alexandria.vision.CameraSourcePreview;
+import it.jaschke.alexandria.vision.GraphicOverlay;
 
 public class BarcodeScannerActivity extends AppCompatActivity {
     private static final String TAG = BarcodeScannerActivity.class.getSimpleName();
@@ -49,7 +51,7 @@ public class BarcodeScannerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_barcode_scanner);
 
         mPreview = (CameraSourcePreview) findViewById(R.id.preview);
-        mGraphicOverlay = (GraphicOverlay) findViewById(R.id.faceOverlay);
+        mGraphicOverlay = (GraphicOverlay) findViewById(R.id.barcodeOverlay);
 
         // Check for the camera permission before accessing the camera.  If the
         // permission is not granted yet, request permission.

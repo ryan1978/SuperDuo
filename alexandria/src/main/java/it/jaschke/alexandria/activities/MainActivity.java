@@ -1,4 +1,4 @@
-package it.jaschke.alexandria;
+package it.jaschke.alexandria.activities;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -19,7 +19,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.api.Callback;
+import it.jaschke.alexandria.fragments.AboutFragment;
+import it.jaschke.alexandria.fragments.AddFragment;
+import it.jaschke.alexandria.fragments.DetailFragment;
+import it.jaschke.alexandria.fragments.ListFragment;
 
 public class MainActivity extends AppCompatActivity
         implements OnNavigationItemSelectedListener, Callback {
@@ -100,21 +105,21 @@ public class MainActivity extends AppCompatActivity
                 tag         = LISTBOOKSFRAGMENT_TAG;
                 fragment    = fragmentManager.findFragmentByTag(tag);
                 if (null == fragment) {
-                    fragment = new ListOfBooks();
+                    fragment = new ListFragment();
                 }
                 break;
             case R.id.add_book:
                 tag         = ADDBOOKFRAGMENT_TAG;
                 fragment    = fragmentManager.findFragmentByTag(tag);
                 if (null == fragment) {
-                    fragment = new AddBook();
+                    fragment = new AddFragment();
                 }
                 break;
             case R.id.about:
                 tag         = ABOUTFRAGMENT_TAG;
                 fragment    = fragmentManager.findFragmentByTag(tag);
                 if (null == fragment) {
-                    fragment = new About();
+                    fragment = new AboutFragment();
                 }
                 break;
         }
@@ -124,13 +129,14 @@ public class MainActivity extends AppCompatActivity
 
         if (null != fragment) {
             // Checking if the item is in checked state or not, if not make it in checked state
-            menuItem.setChecked(!menuItem.isChecked());
+            menuItem.setChecked(true);
 
             fragmentManager
                     .beginTransaction()
                     .replace(R.id.container, fragment, tag)
                     .addToBackStack(null)
                     .commit();
+
             return true;
         } else {
             return false;
@@ -169,9 +175,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onItemSelected(String ean) {
         Bundle args = new Bundle();
-        args.putString(BookDetail.EAN_KEY, ean);
+        args.putString(DetailFragment.EAN_KEY, ean);
 
-        BookDetail fragment = new BookDetail();
+        DetailFragment fragment = new DetailFragment();
         fragment.setArguments(args);
 
         int id = R.id.container;

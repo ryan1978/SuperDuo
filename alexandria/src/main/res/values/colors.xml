@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="white">#FFFFFF</color>
-    <color name="grey">#CCCCCC</color>
-    <color name="grey_700">#646464</color>
-    <color name="black">#000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="grey">#FFCCCCCC</color>
+    <color name="grey_700">#FF646464</color>
+    <color name="black">#FF000000</color>
 
     <!-- using the "Green" Material Palette -->
-    <color name="primary">#4CAF50</color> <!-- 500 -->
-    <color name="primary_dark">#388E3C</color> <!-- 700 -->
-    <color name="primary_light">#C8E6C9</color> <!-- 100 -->
-    <color name="accent">#7C4DFF</color>
+    <color name="primary">#FF4CAF50</color> <!-- 500 -->
+    <color name="primary_dark">#FF388E3C</color> <!-- 700 -->
+    <color name="primary_light">#FFC8E6C9</color> <!-- 100 -->
+    <color name="accent">#FF7C4DFF</color>
+
+    <!-- Navigation Default Drawer Colors -->
+    <color name="drawer_item_text_default">#DE000000</color>
+    <color name="drawer_item_icon_default">#8A000000</color>
 
 </resources>

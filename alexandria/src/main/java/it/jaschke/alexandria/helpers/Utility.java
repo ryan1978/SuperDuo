@@ -1,4 +1,4 @@
-package it.jaschke.alexandria;
+package it.jaschke.alexandria.helpers;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

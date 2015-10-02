@@ -1,4 +1,4 @@
-package it.jaschke.alexandria.camera;
+package it.jaschke.alexandria.vision;
 
 import android.content.Context;
 import android.graphics.Canvas;
