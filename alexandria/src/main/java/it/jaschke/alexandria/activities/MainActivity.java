@@ -9,6 +9,7 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -17,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import it.jaschke.alexandria.R;
@@ -25,6 +27,7 @@ import it.jaschke.alexandria.fragments.AboutFragment;
 import it.jaschke.alexandria.fragments.AddFragment;
 import it.jaschke.alexandria.fragments.DetailFragment;
 import it.jaschke.alexandria.fragments.ListFragment;
+import it.jaschke.alexandria.helpers.Utility;
 
 public class MainActivity extends AppCompatActivity
         implements OnNavigationItemSelectedListener, Callback {
@@ -88,6 +91,14 @@ public class MainActivity extends AppCompatActivity
         // Calling sync state is necessary or else your hamburger icon won't show up
         actionBarDrawerToggle.syncState();
 
+        // Load preferred start fragment
+        String preferredFragment = Utility.getPreferredStartFragment(this);
+        if (preferredFragment.equals(getString(R.string.pref_start_fragment_add_book))) {
+            onNavigationItemSelected(mNavigationDrawer.getMenu().findItem(R.id.add_book));
+        } else {
+            onNavigationItemSelected(mNavigationDrawer.getMenu().findItem(R.id.list_books));
+        }
+
         mMessageReciever    = new MessageReciever();
         IntentFilter filter = new IntentFilter(MESSAGE_EVENT);
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReciever, filter);
@@ -131,16 +142,24 @@ public class MainActivity extends AppCompatActivity
             // Checking if the item is in checked state or not, if not make it in checked state
             menuItem.setChecked(true);
 
-            fragmentManager
-                    .beginTransaction()
-                    .replace(R.id.container, fragment, tag)
-                    .addToBackStack(null)
-                    .commit();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.replace(R.id.container, fragment, tag);
+            // Only add to backstack if this isn't the first fragment being loaded
+            if (!isFirstFragment()) transaction.addToBackStack(null);
+            transaction.commit();
 
             return true;
         } else {
             return false;
         }
+    }
+
+    /**
+     * Checks if this activity has previously loaded a fragment
+     * @return true if a fragment has been loaded, false otherwise
+     */
+    private boolean isFirstFragment() {
+        return ((FrameLayout) findViewById(R.id.container)).getChildCount() == 0;
     }
 
     @Override

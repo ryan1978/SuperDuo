@@ -6,7 +6,7 @@
     </string-array>
 
     <string-array name="pref_start_values">
-        <item>0</item>
-        <item>1</item>
+        <item>@string/pref_start_fragment_list_books</item>
+        <item>@string/pref_start_fragment_add_book</item>
     </string-array>
 </resources>
