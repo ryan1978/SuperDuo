@@ -25,7 +25,7 @@
     <!-- DetailFragment strings -->
 
     <!-- AddFragment strings -->
-    <string name="scan">Scan/Add a Book</string>
+    <string name="scan">Add a Book</string>
     <string name="input_hint">Insert ISBN-13. Digits only.</string>
     <string name="scan_button">Scan</string>
     <string name="ok_button">Next</string>

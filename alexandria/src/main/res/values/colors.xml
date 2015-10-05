@@ -11,6 +11,8 @@
     <color name="primary_dark">#FF388E3C</color> <!-- 700 -->
     <color name="primary_light">#FFC8E6C9</color> <!-- 100 -->
     <color name="accent">#FF7C4DFF</color>
+    <color name="primary_text">#DE000000</color>
+    <color name="secondary_text">#8A000000</color>
 
     <!-- Navigation Default Drawer Colors -->
     <color name="drawer_item_text_default">#DE000000</color>

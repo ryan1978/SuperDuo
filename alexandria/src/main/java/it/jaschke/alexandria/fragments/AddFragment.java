@@ -59,7 +59,7 @@ public class AddFragment extends Fragment implements LoaderManager.LoaderCallbac
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View rootView       = inflater.inflate(R.layout.fragment_add_book, container, false);
+        View rootView       = inflater.inflate(R.layout.fragment_book_add, container, false);
         mErrorMessage       = (TextView) rootView.findViewById(R.id.error_message);
         mMainLayout         = (ViewGroup) rootView.findViewById(R.id.main_layout);
         mScanButton         = (Button) rootView.findViewById(R.id.scan_button);

@@ -22,7 +22,6 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import it.jaschke.alexandria.R;
-import it.jaschke.alexandria.api.Callback;
 import it.jaschke.alexandria.fragments.AboutFragment;
 import it.jaschke.alexandria.fragments.AddFragment;
 import it.jaschke.alexandria.fragments.DetailFragment;
@@ -30,9 +29,9 @@ import it.jaschke.alexandria.fragments.ListFragment;
 import it.jaschke.alexandria.helpers.Utility;
 
 public class MainActivity extends AppCompatActivity
-        implements OnNavigationItemSelectedListener, Callback {
+        implements OnNavigationItemSelectedListener, ListFragment.Callback {
 
-    private static final String TAG                     = MainActivity.class.getSimpleName();
+    private static final String LOG_TAG                 = MainActivity.class.getSimpleName();
     private static final String LISTBOOKSFRAGMENT_TAG   = "LBFT";
     private static final String ADDBOOKFRAGMENT_TAG     = "ABFT";
     private static final String ABOUTFRAGMENT_TAG       = "AFT";
@@ -44,6 +43,7 @@ public class MainActivity extends AppCompatActivity
     private NavigationView mNavigationDrawer;
     private DrawerLayout mDrawerLayout;
     private BroadcastReceiver mMessageReciever;
+    private boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,49 +54,55 @@ public class MainActivity extends AppCompatActivity
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
-        // Initialize NavigationView
-        mNavigationDrawer = (NavigationView) findViewById(R.id.navigation_drawer);
+        if (findViewById(R.id.right_container) == null) {
+            mTwoPane = false;
 
-        // Setting NavigationView Item Selected Listener to handle the item click
-        // of the navigation menu
-        mNavigationDrawer.setNavigationItemSelectedListener(this);
+            // Initialize NavigationView
+            mNavigationDrawer = (NavigationView) findViewById(R.id.navigation_drawer);
 
-        // Initialize Drawer Layout and ActionBarToggle
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer);
-        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(
-                this,
-                mDrawerLayout,
-                mToolbar,
-                R.string.open_drawer,
-                R.string.close_drawer) {
+            // Setting NavigationView Item Selected Listener to handle the item click
+            // of the navigation menu
+            mNavigationDrawer.setNavigationItemSelectedListener(this);
 
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                // Code here will be triggered once the drawer closes as we don't want anyting
-                // to happen so we leave this blank
-                super.onDrawerClosed(drawerView);
+            // Initialize Drawer Layout and ActionBarToggle
+            mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer);
+            ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(
+                    this,
+                    mDrawerLayout,
+                    mToolbar,
+                    R.string.open_drawer,
+                    R.string.close_drawer) {
+
+                @Override
+                public void onDrawerClosed(View drawerView) {
+                    // Code here will be triggered once the drawer closes as we don't want anyting
+                    // to happen so we leave this blank
+                    super.onDrawerClosed(drawerView);
+                }
+
+                @Override
+                public void onDrawerOpened(View drawerView) {
+                    // Code here will be triggered once the drawer opens as we don't want anything
+                    // to happen so we leave this blank
+                    super.onDrawerOpened(drawerView);
+                }
+            };
+
+            // Setting the ActionBarToggle to drawer layout
+            mDrawerLayout.setDrawerListener(actionBarDrawerToggle);
+
+            // Calling sync state is necessary or else your hamburger icon won't show up
+            actionBarDrawerToggle.syncState();
+
+            // Load preferred start fragment
+            String preferredFragment = Utility.getPreferredStartFragment(this);
+            if (preferredFragment.equals(getString(R.string.pref_start_fragment_add_book))) {
+                onNavigationItemSelected(mNavigationDrawer.getMenu().findItem(R.id.add_book));
+            } else {
+                onNavigationItemSelected(mNavigationDrawer.getMenu().findItem(R.id.list_books));
             }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                // Code here will be triggered once the drawer opens as we don't want anything
-                // to happen so we leave this blank
-                super.onDrawerOpened(drawerView);
-            }
-        };
-
-        // Setting the ActionBarToggle to drawer layout
-        mDrawerLayout.setDrawerListener(actionBarDrawerToggle);
-
-        // Calling sync state is necessary or else your hamburger icon won't show up
-        actionBarDrawerToggle.syncState();
-
-        // Load preferred start fragment
-        String preferredFragment = Utility.getPreferredStartFragment(this);
-        if (preferredFragment.equals(getString(R.string.pref_start_fragment_add_book))) {
-            onNavigationItemSelected(mNavigationDrawer.getMenu().findItem(R.id.add_book));
         } else {
-            onNavigationItemSelected(mNavigationDrawer.getMenu().findItem(R.id.list_books));
+            mTwoPane = true;
         }
 
         mMessageReciever    = new MessageReciever();
@@ -199,12 +205,9 @@ public class MainActivity extends AppCompatActivity
         DetailFragment fragment = new DetailFragment();
         fragment.setArguments(args);
 
-        int id = R.id.container;
-        if(findViewById(R.id.right_container) != null){
-            id = R.id.right_container;
-        }
-        getSupportFragmentManager().beginTransaction()
-                .replace(id, fragment)
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(mTwoPane ? R.id.right_container : R.id.container, fragment)
                 .addToBackStack("Book Detail")
                 .commit();
     }
