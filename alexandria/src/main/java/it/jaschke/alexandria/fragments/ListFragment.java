@@ -1,9 +1,6 @@
 package it.jaschke.alexandria.fragments;
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.app.SearchManager;
-import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,7 +9,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ListView;
 
 import it.jaschke.alexandria.R;
@@ -31,20 +26,12 @@ import it.jaschke.alexandria.data.AlexandriaContract;
 public class ListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String LOG_TAG = ListFragment.class.getSimpleName();
 
+    private SearchView mSearchView;
     private BookListAdapter mBookListAdapter;
     private ListView mBookList;
-    private EditText mSearchText;
     private int mPosition = ListView.INVALID_POSITION;
 
-    private final int LOADER_ID = 10;
-
-    public interface Callback {
-        /**
-         * DetailFragmentCallback for when an item has been selected.
-         * @param ean The ean of the selected book
-         */
-        public void onItemSelected(String ean);
-    }
+    private final int BOOK_LIST_LOADER = 10;
 
     public ListFragment() { }
 
@@ -56,15 +43,11 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.book_list, menu);
 
-        SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
-        searchView.setImeOptions(EditorInfo.IME_ACTION_NONE);
-        ActionBar.LayoutParams params = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.WRAP_CONTENT);
-        searchView.setLayoutParams(params);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        mSearchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+        mSearchView.setImeOptions(EditorInfo.IME_ACTION_NONE);
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 return false;
@@ -72,7 +55,7 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                Log.d(LOG_TAG, "Filtering: " + newText);
+                restartLoader();
                 return true;
             }
         });
@@ -93,16 +76,6 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
 
         mBookListAdapter = new BookListAdapter(getActivity(), cursor, 0);
 
-        //mSearchText = (EditText) rootView.findViewById(R.id.searchText);
-        //rootView.findViewById(R.id.searchButton).setOnClickListener(
-        //        new View.OnClickListener() {
-        //            @Override
-        //            public void onClick(View v) {
-        //                ListFragment.this.restartLoader();
-        //            }
-        //        }
-        //);
-
         mBookList = (ListView) rootView.findViewById(R.id.listOfBooks);
         mBookList.setAdapter(mBookListAdapter);
         mBookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -119,17 +92,24 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
         return rootView;
     }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(BOOK_LIST_LOADER, null, this);
+        getActivity().setTitle(R.string.books);
+        super.onActivityCreated(savedInstanceState);
+    }
+
     private void restartLoader(){
-        getLoaderManager().restartLoader(LOADER_ID, null, this);
+        getLoaderManager().restartLoader(BOOK_LIST_LOADER, null, this);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
         final String selection = AlexandriaContract.BookEntry.TITLE +" LIKE ? OR " + AlexandriaContract.BookEntry.SUBTITLE + " LIKE ? ";
-        String searchString = mSearchText.getText().toString();
+        String searchString = mSearchView != null ? mSearchView.getQuery().toString() : null;
 
-        if(searchString.length()>0){
+        if(searchString != null && searchString.length()>0){
             searchString = "%"+searchString+"%";
             return new CursorLoader(
                     getActivity(),
@@ -168,5 +148,13 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         activity.setTitle(R.string.books);
+    }
+
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         * @param ean The ean of the selected book
+         */
+        public void onItemSelected(String ean);
     }
 }
